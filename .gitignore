@@ -1,0 +1,18 @@
+# ignore all "dot" files/directories
+.*
+.**/**
+
+# whitelist desired "dot" files
+!.gitignore
+!.gitkeep
+
+# excluded directories
+bin/
+build/
+captures/
+
+# android studio
+*.iml
+
+# gradle
+local.properties

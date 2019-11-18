@@ -1,0 +1,85 @@
+Copyright (c) 2019 LiveShopper, LLC <https://LiveShopper.com>
+Software License Agreement
+Version 1.0, September 2019
+
+Please read this software license agreement (“License”) carefully before using the LiveShopper
+software. By using the LiveShopper software, you are agreeing to be bound by the terms of this
+License. If you do not agree to the terms of this License, do not use the software. As with any
+software that integrates with the LiveShopper platform, your use of this software is subject to
+the LiveShopper Developer Principles and Policies [https://developers.liveshopper.com/policy].
+
+1. General.
+
+A.  The LiveShopper software and documentation accompanying this License whether on disk,
+    in read only memory, on any other media or in any other form (collectively the “LiveShopper Software”)
+    are licensed, not sold, to you by LiveShopper, LLC. (“LiveShopper”) for use only under the
+    terms of this License. LiveShopper retains ownership of the LiveShopper software itself and
+    reserves all rights not expressly granted to you.
+
+B.  LiveShopper, at its discretion, may make available future upgrades or updates to the LiveShopper
+    software. Upgrades and updates, if any, may not necessarily include all existing software features or
+    new features that LiveShopper releases. The terms of this License will govern any software upgrades
+    or updates provided by LiveShopper that replace and/or supplement the original LiveShopper software
+    product, unless such upgrade or update is accompanied by a separate license in which case the terms
+    of that license will govern.
+
+C.  Title and intellectual property rights in and to any content displayed by or accessed through the
+    LiveShopper software belongs to the respective content owner. Such content may be protected by copyright
+    or other intellectual property laws and treaties, and may be subject to terms of use of the third
+    party providing such content. This License does not grant you any rights to use such content nor
+    does it guarantee that such content will continue to be available to you.
+
+2. Permitted License Uses and Restrictions.
+
+A.  Subject to the terms and conditions of this License, you are granted a worldwide, non-exclusive,
+    royalty-free, non-assignable &amp; non-transferable commercial copyright license to use the
+    LiveShopper software, prepare derivative works and distribute the work and such derivative works
+    in source or object form.
+
+B.  To the extent that the LiveShopper software may be used to reproduce materials, such use is limited
+    to reproduction of non-copyrighted materials, materials in which you own the copyright, or materials
+    you are authorized or legally permitted to reproduce.
+
+C.  No Reverse Engineering. You may not, and you agree not to or enable others to, copy (except as
+    expressly permitted by this License), decompile, reverse engineer, disassemble, attempt to derive the
+    source code of, decrypt, or modify the LiveShopper software or any services provided by the LiveShopper
+    software or any part thereof (except as and only to the extent any foregoing restriction is prohibited
+    by applicable law or by licensing terms governing use of Open-Sourced Components that may be included
+    with the LiveShopper software).
+
+3. Termination.
+
+This License is effective until terminated. Your rights under this License will terminate
+automatically without notice from LiveShopper if you fail to comply with any term(s) of this License.
+Upon the termination of this License, you must cease all use of the LiveShopper Software and destroy
+all copies, full or partial, of the LiveShopper Software. Sections 3, 4, 5 and 6 of this License
+shall survive any such termination.
+
+4. Disclaimer of Warranty.
+
+TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, THE LiveShopper SOFTWARE AND SERVICES ARE PROVIDED “AS IS”
+AND “AS AVAILABLE”, WITH ALL FAULTS AND WITHOUT WARRANTY OF ANY KIND, AND LiveShopper AND LiveShopper’S
+LICENSORS (COLLECTIVELY REFERRED TO AS “LiveShopper” FOR THE PURPOSES OF SECTIONS 3 AND 4) HEREBY DISCLAIM
+ALL WARRANTIES AND CONDITIONS WITH RESPECT TO THE LiveShopper SOFTWARE AND SERVICES, EITHER EXPRESS,
+IMPLIED OR STATUTORY, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES AND/OR CONDITIONS OF
+MERCHANTABILITY, SATISFACTORY QUALITY, FITNESS FOR A PARTICULAR PURPOSE, ACCURACY, QUIET ENJOYMENT, AND
+NON-INFRINGEMENT OF THIRD PARTY RIGHTS.
+
+5. Limitation of Liability.
+
+In no event and under no legal theory, whether in tort (including negligence), contract, or otherwise,
+unless required by applicable law (such as deliberate and grossly negligent acts) or agreed to in writing,
+shall LiveShopper be liable to You for damages, including any direct, indirect, special, incidental, or
+consequential damages of any character arising as a result of this License or out of the use or inability
+to use the software (including but not limited to damages for loss of goodwill, work stoppage, device
+failure or malfunction, or any and all other commercial damages or losses), even if You have been
+advised of the possibility of such damages.
+
+6. Accepting Warranty or Additional Liability.
+
+While redistributing the LiveShopper software or derivative works thereof, You may choose to offer,
+and charge a fee for, acceptance of support, warranty, indemnity, or other liability obligations
+and/or rights consistent with this License. However, in accepting such obligations, You may act only
+on Your own behalf and on Your sole responsibility, not on behalf of LiveShopper, and only if You
+agree to indemnify, defend, and hold LiveShopper harmless for any liability incurred by, or claims
+asserted agains LiveShopper by reason of your accepting any such warranty or additional liability.
