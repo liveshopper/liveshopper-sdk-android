@@ -1,11 +1,32 @@
 language: android
-dist: trusty
+jdk: oraclejdk8
+
+before_cache:
+  - rm -f ${TRAVIS_BUILD_DIR}/gradle/caches/modules-2/modules-2.lock # avoid to repack it due locks
+  - rm -f ${TRAVIS_BUILD_DIR}/gradle/caches/3.3/classAnalysis/classAnalysis.lock
+  - rm -f ${TRAVIS_BUILD_DIR}/gradle/caches/3.3/jarSnapshots/jarSnapshots.lock
+
+cache:
+  directories:
+    - ${TRAVIS_BUILD_DIR}/gradle/caches/
+    - ${TRAVIS_BUILD_DIR}/gradle/wrapper/dists/
+
 android:
   components:
-    - build-tools-29.0.2
+    - tools
+    - build-tools-29.0.2    
+    - platform-tools
     - android-29
-    - extra-google-google_play_services
+    - sys-img-x86-android-29
+    - extra
 
-script:
-  - ./gradlew :app:lint
-  - ./gradlew :app:build
+before_install:
+  - echo 'count=0' > /home/travis/.android/repositories.cfg # avoid warning    
+
+install: 
+  - sdkmanager --list || true  
+  - echo yes | sdkmanager "tools"
+  - echo yes | sdkmanager "platforms;android-29"
+  - sdkmanager --list || true  
+
+script: ./test.sh
