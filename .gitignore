@@ -5,6 +5,7 @@
 # whitelist desired "dot" files
 !.gitignore
 !.gitkeep
+!.travis.yml
 
 # excluded directories
 bin/
