@@ -30,7 +30,7 @@ The best way to add the SDK to your project is via Gradle and [JCenter](https://
 
 ```kotlin
 dependencies {
-  implementation 'com.liveshopper:sdk:0.0.+'
+  implementation 'com.liveshopper.sdk:sdk:0.0.1+'
 }
 ```
 
