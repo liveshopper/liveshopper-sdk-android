@@ -72,7 +72,7 @@ where userId is a unique ID for the user. We do not recommend using names, email
 
 ### Request permissions
 
-The SDK respects the built in  location permissions. Before tracking is permitted, the user must authorize location permissions for the app if they haven't previously. This is handled by the SDK once tracking is started.
+The SDK respects the built in location permissions. Before tracking is permitted, the user must authorize location permissions for the app if they haven't previously. This is handled by the SDK once tracking is started.
 
 To track the user's location in the foreground, the SDK requires the ACCESS_FINE_LOCATION permission. Learn more about requesting permissions here.
 
@@ -290,14 +290,13 @@ LiveShopper.Tasks.get(
     latitude: Double,
     longitude: Double,
     radius: Double,
-    minimumRadius: Double
-) { result in
-    if case let .success(tasks) = result {
-        ...
-    } else if case let .failure(error) = result {
-        ...
+    minimumRadius: Double,
+    { response ->
+      ...
+    }, { throwable ->
+      ...
     }
-}
+)
 ```
 
 You can get the available tasks at a location by calling:
@@ -306,14 +305,13 @@ You can get the available tasks at a location by calling:
 LiveShopper.Tasks.get(
     locationID: String,
     minimumRadius: Double?,
-    campaignID: String?
-) { result in
-    if case let .success(tasks) = result {
-        ...
-    } else if case let .failure(error) = result {
-        ...
+    campaignID: String?,
+    { response ->
+      ...
+    }, { throwable ->
+      ...
     }
-}
+)
 ```
 
 You can get details about what the user must do to satisfy the task by calling:
@@ -325,31 +323,41 @@ let requirements = LiveShopper.Tasks.getRequirements(task: LSTask)
 You can claim a task for the current user by calling:
 
 ```kotlin
-LiveShopper.Tasks.claim(task: LSTask) { result in
-    if  case  let .success(claimedTask) = result {
-        ...
-    } else if  case  let .failure(error) = result
-        ...
+LiveShopper.Tasks.claim(
+    task: LSTask,
+    { response ->
+      ...
+    }, { throwable ->
+      ...
     }
-}
+)
+
 ```
 
 You can send a user response related to a task by calling:
 
 ```kotlin
+ LiveShopperAPI.submitAnswer(taskResponse) {
+      if (it.state == STATE_COMPLETE) {
+          handleRewardClaim()
+      } else {
+          // Still more questions to complete
+          it.nextKey?.let { key -> showNextQuestionByNextKey(key) }
+      }
+  }
+
 LiveShopper.Tasks.saveResponse(
     task: LSTask,
     question: LSQuestion,
     answers: [String]?,
     userAnswer: String?,
     image: UIImage?,
-) { result in
-    if  case  let .success(response) = result {
-        ...
-    else  if  case  let .failure(error) = result {
-        ...
+    { response ->
+      ...
+    }, { throwable ->
+      ...
     }
-}
+)
 ```
 
 Finally, there is a helper method to get the next step in a task by calling:
@@ -390,25 +398,20 @@ LiveShopper.Places.get(
     latitude: Double,
     longitude: Double,
     radius: Double,
-    minimumRadius: Double
-) { result in
-    if case .success = result {
-        ...
-    } else if case let .failure(error) = result {
-        ...
+    minimumRadius: Double,
+    { response ->
+      ...
+    }, { throwable ->
+      ...
     }
-}
+)
 ```
 
 alternatively, you can query based on keyword:
 
 ```kotlin
 LiveShopper.Places.get(searchTerm: String) { result in {
-    if case .success = result {
-        ...
-    } else if case let .failure(error) = result {
-        ...
-    }
+  ...
 }
 ```
 
@@ -449,12 +452,11 @@ You can claim a `LSReward` by calling:
 ```kotlin
 LiveShopper.Rewards.claim(
     task: LSTask,
-    reward: LSReward
-) { result in
-    if case .success = result {
-        ...
-    } else if case let .failure(error) = result {
-        ...
+    reward: LSReward,
+    { response ->
+      ...
+    }, { throwable ->
+      ...
     }
-}
+)
 ```
