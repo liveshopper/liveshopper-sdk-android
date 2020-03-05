@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:layout_width="match_parent" android:layout_height="match_parent"
+            android:padding="16dp"
+            android:fillViewport="true">
+
+    <FrameLayout android:layout_width="match_parent" android:layout_height="wrap_content">
+
+        <include layout="@layout/camera_capture_layout" android:id="@+id/camera_capture_layout"
+                 android:visibility="gone"
+                 android:layout_margin="-16dp"
+                 android:layout_width="match_parent"
+                 android:layout_height="match_parent"/>
+
+        <androidx.constraintlayout.widget.ConstraintLayout android:id="@+id/questionContainer"
+                                                           android:layout_width="match_parent"
+                                                           android:layout_height="match_parent"
+                                                           android:orientation="vertical">
+
+            <TextView
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    android:id="@+id/questionTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:text="This is placeholder text for the question title."
+                    android:textColor="@color/bright_orange"
+                    android:textSize="28sp"/>
+
+            <View
+                    app:layout_constraintTop_toBottomOf="@id/questionTitle"
+                    android:id="@+id/line1"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/light_gray"/>
+
+            <FrameLayout app:layout_constraintTop_toBottomOf="@id/line1"
+                         app:layout_constraintStart_toStartOf="parent"
+                         app:layout_constraintEnd_toEndOf="parent"
+                         app:layout_constraintBottom_toTopOf="@+id/photoContainer"
+                         android:layout_marginTop="16dp"
+                         android:id="@+id/questionLayoutContainer"
+                         android:layout_width="match_parent"
+                         android:layout_height="wrap_content"/>
+
+            <include
+                    layout="@layout/question_photo" android:id="@+id/photoContainer"/>
+
+            <include
+                    layout="@layout/next_button" android:id="@+id/nextButton"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </FrameLayout>
+</ScrollView>

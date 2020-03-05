@@ -1,3 +1,10 @@
 <resources>
-    <string name="app_name">LiveShopperExample</string>
+    <string name="app_name">LiveShopper</string>
+    <string name="map">map</string>
+    <string name="list">list</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="claimable_rewards">%1$d claimable rewards!</string>
+    <string name="miles_away">%1$s miles away</string>
+    <string name="next">Next</string>
+
 </resources>

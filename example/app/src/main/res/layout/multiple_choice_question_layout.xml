@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content">
+    <TextView
+            android:id="@+id/checkAllApplyTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Check all answers that apply"
+            android:textColor="@color/light_gray"
+            android:textSize="14sp"/>
+
+    <LinearLayout
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:id="@+id/answerContainer" android:orientation="vertical"/>
+    <TextView
+            android:id="@+id/pleaseSelectOnlyTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="Please select between 1 to 3 response(s)."
+            android:textColor="@color/light_gray"
+            android:textSize="16sp"
+    />
+
+</LinearLayout>
