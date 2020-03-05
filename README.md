@@ -18,9 +18,9 @@ The LiveShopper SDK uses the Play Services Location library. If you haven't alre
 
 The following permissions are required, and are added automatically by the SDK manifest:
 
-- `ACCESS_FINE_LOCATION`, for location services
-- `INTERNET and ACCESS_NETWORK_STATE`, to send API requests
-- `RECEIVE_BOOT_COMPLETED`, to restore geofences on boot
+-   `ACCESS_FINE_LOCATION`, for location services
+-   `INTERNET and ACCESS_NETWORK_STATE`, to send API requests
+-   `RECEIVE_BOOT_COMPLETED`, to restore geofences on device boot
 
 If targeting API level 29 or higher, to track the user's location in the background, you must also add the new `ACCESS_BACKGROUND_LOCATION` permission to your manifest. Learn more about [location permissions changes in Android 10](https://developer.android.com/preview/privacy/device-location).
 
@@ -55,7 +55,7 @@ import com.liveshopepr.sdk.LiveShopper
 Initialize the SDK in your AppDelegate class, on the main thread, before calling any other LiveShopper methods. In application(\_:didFinishLaunchingWithOptions:), call:
 
 ```kotlin
-LiveShopper.initialize(publishableKey)
+LiveShopper.initialize("INSERT_PUBLISHABLE_KEY_HERE")
 ```
 
 ### Identify user
@@ -74,7 +74,7 @@ where userId is a unique ID for the user. We do not recommend using names, email
 
 The SDK respects the built in location permissions. Before tracking is permitted, the user must authorize location permissions for the app if they haven't previously. This is handled by the SDK once tracking is started.
 
-To track the user's location in the foreground, the SDK requires the ACCESS_FINE_LOCATION permission. Learn more about requesting permissions here.
+To track the user's location in the foreground, the SDK requires the `ACCESS_FINE_LOCATION` permission. Learn more about requesting permissions here.
 
 If targeting API level 29 or higher, to track the user's location in the background, the SDK also requires the new ACCESS_BACKGROUND_LOCATION permission.
 
@@ -86,54 +86,122 @@ ActivityCompat.requestPermissions(activity, arrayOf(Manifest.permission.ACCESS_F
 ActivityCompat.requestPermissions(activity, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_BACKGROUND_LOCATION), requestCode)
 ```
 
+> Note: Your request code can be any value you wish. Such as `1` or `100`.
+
 ### Tracking
 
 Once you have initialized the SDK and the user has granted permissions, you can start tracking the user's location in the background.
 
-To start tracking the user's location, call:
+To start tracking the user's location, first define your tracking options and then call `Tracking.start()`:
 
 ```kotlin
-LiveShopper.startTracking()
+// CONTINUOUS
+// RESPONSIVE
+// EFFICIENT
+// TESTING
+val options = LiveShopperTrackingOptions.TESTING
+options.sync = LiveShopperTrackingOptions.LSTrackingOptionsSync.ALL
+        LiveShopper.Tracking.start(options)
 ```
 
 To stop tracking the user's location, call:
 
 ```kotlin
-LiveShopper.stopTracking()
+LiveShopper.Tracking.stopTracking()
 ```
 
-To listen for events or errors client-side in the background, create a class that extends `LiveShopperReceiver`. Then, register the receiver by adding a receiver element to the application element in your manifest:
+To listen for events or errors client-side in the background, you will need to create a class that extends `LiveShopperReceiver`. Then, register that receiver by adding a receiver element to the application element in your manifest:
 
-```xml
-        <receiver
-                android:name=".ExampleReceiver"
-                android:enabled="true"
-                android:exported="false">
-            <intent-filter>
-                <action android:name="com.liveshopper.sdk.RECEIVED" />
-            </intent-filter>
-        </receiver>
-```
+Your receiver should implement the following:
 
-Your receiver shoudl implement the following:
+> Note: The example below includes some testing code.
+> This code presents a local notifications on your device for each event callback.
+> Be sure to remove/disable the notification logic before releasing your app
 
 ```kotlin
 class ExampleReceiver : LiveShopperReceiver() {
-    override fun onError(context: Context, status: LSStatus) {
-        // do something with context, status
+    override fun onClientLocationUpdated(context: Context, location: Location, stopped: Boolean, source: LiveShopper.LSLocationSource) {
+        var body = "${if (stopped) "client stopped at" else "client moved to"} location (${location.latitude}, " +
+                        "${location.longitude}) with accuracy ${location.accuracy} and source $source"
+
+        notify(context, body)
     }
 
-    override fun onEventsReceived(context: Context, events: Array<LSEvent>, user: LSUser) {
-        // do something with context, events, user
+    override fun onError(context: Context, status: LiveShopper.LSStatus) {
+        val body = fromStatus(status)
+
+        notify(context, body)
+    }
+
+    override fun onEventsReceived(context: Context, events: List<LSEvent>, user: LSUser) {
+        events.forEach { event ->
+            val body = "event = ${fromEvent(event)}; type = ${event.type};"
+
+            notify(context, body)
+        }
     }
 
     override fun onLocationUpdated(context: Context, location: Location, user: LSUser) {
-        // do something with context, location, user
+        var body = "${if (user.stopped) "stopped at" else "moved to"} location (${location.latitude}, " +
+                        "${location.longitude}) with accuracy ${location.accuracy}"
+
+        notify(context, body)
+    }
+
+    override fun onLog(context: Context, message: String) {
+        notify(context, message)
+    }
+
+    // The following companion object is used ONLY for testing purposes. It is not required, but does provide a great example on how to send a local notification.
+    companion object {
+        var identifier = 0
+
+        internal fun notify(context: Context, body: String) {
+            identifier++
+
+            val channelId = "liveshopper_example"
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                val name = channelId
+                val importance = NotificationManager.IMPORTANCE_HIGH
+                val channel = NotificationChannel(channelId, name, importance).apply {
+                    description = channelId
+                }
+
+                val notificationManager: NotificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+                notificationManager.createNotificationChannel(channel)
+            }
+
+            val builder = NotificationCompat.Builder(context, channelId)
+                .setSmallIcon(com.liveshopper.example.R.drawable.ic_notification)
+                .setStyle(NotificationCompat.BigTextStyle().bigText(body))
+                .setContentText(body)
+                .setPriority(NotificationCompat.PRIORITY_MAX)
+
+            with(NotificationManagerCompat.from(context)) {
+                notify(identifier % 20, builder.build())
+            }
+        }
     }
 }
 ```
 
-### Tasks
+Your `AndroidManifest.xml` should include the following in the `application` tag:
+
+```xml
+<receiver
+        android:name=".ExampleReceiver"
+        android:enabled="true"
+        android:exported="false">
+    <intent-filter>
+        <action android:name="com.liveshopper.sdk.RECEIVED" />
+    </intent-filter>
+</receiver>
+```
+
+## Tasks
+
+### Retrieving Tasks
 
 The LiveShopper SDK uses the `LSTask` model to represent an activity that can be performed by the user.
 
@@ -141,178 +209,175 @@ The LiveShopper SDK uses the `LSTask` model to represent an activity that can be
 
 ```json
 {
-  "count": 22,
-  "data": [
-    {
-      "state": "generated",
-      "description": "Determine if location exists",
-      "distance": 0.41139203933289425,
-      "due": "4102376400",
-      "title": "Location Verification",
-      "claimDistanceOverride": "0.5",
-      "locationKey": "-LmfCNwykkNhhXEOYSB_",
-      "logo": "",
-      "taskRequirements": null,
-      "associatesOnly": false,
-      "nextQuestion": "-LmjvVzwDrCMSoYmz_7x",
-      "location": {
-        "latitude": 41.0388157,
-        "longitude": -83.6532543,
-        "address1": "229 W MAIN CROSS ST",
-        "address2": "",
-        "city": "FINDLAY",
-        "country": "US",
-        "name": "FINDLAY MAIN OFFICE",
-        "phoneNumber": "",
-        "state": "OH",
-        "zipCode": "45840"
-      },
-      "owners": {
-        "user": "...",
-        "client": "...",
-        "campaign": "-LmjvUny5xtQdOU3COwF"
-      },
-      "questions": [
+    "count": 22,
+    "data": [
         {
-          "type": "singleAnswer",
-          "order": 0,
-          "images": null,
-          "owners": {
-            "client": "..."
-          },
-          "answers": [
-            {
-              "key": "-LmjvOS4y20duzH218WI",
-              "score": null,
-              "created": null,
-              "modified": null,
-              "answerOrder": 0,
-              "displayText": "Yes",
-              "questionKey": "-LmjvVzwDrCMSoYmz_7x",
-              "displayTextKey": null,
-              "clientReference": null,
-              "photoCaptureOptions": null
+            "state": "generated",
+            "description": "Determine if location exists",
+            "distance": 0.41139203933289425,
+            "due": "4102376400",
+            "title": "Location Verification",
+            "claimDistanceOverride": "0.5",
+            "locationKey": "-LmfCNwykkNhhXEOYSB_",
+            "logo": "",
+            "taskRequirements": null,
+            "associatesOnly": false,
+            "nextQuestion": "-LmjvVzwDrCMSoYmz_7x",
+            "location": {
+                "latitude": 41.0388157,
+                "longitude": -83.6532543,
+                "address1": "229 W MAIN CROSS ST",
+                "address2": "",
+                "city": "FINDLAY",
+                "country": "US",
+                "name": "FINDLAY MAIN OFFICE",
+                "phoneNumber": "",
+                "state": "OH",
+                "zipCode": "45840"
             },
-            {
-              "key": "-LmjvQr5tYxA_dJftZRY",
-              "score": null,
-              "created": null,
-              "modified": null,
-              "answerOrder": 1,
-              "displayText": "No",
-              "questionKey": "-LmjvVzwDrCMSoYmz_7x",
-              "displayTextKey": null,
-              "clientReference": null,
-              "photoCaptureOptions": null
+            "owners": {
+                "user": "...",
+                "client": "...",
+                "campaign": "-LmjvUny5xtQdOU3COwF"
+            },
+            "questions": [
+                {
+                    "type": "singleAnswer",
+                    "order": 0,
+                    "images": null,
+                    "owners": {
+                        "client": "..."
+                    },
+                    "answers": [
+                        {
+                            "key": "-LmjvOS4y20duzH218WI",
+                            "score": null,
+                            "created": null,
+                            "modified": null,
+                            "answerOrder": 0,
+                            "displayText": "Yes",
+                            "questionKey": "-LmjvVzwDrCMSoYmz_7x",
+                            "displayTextKey": null,
+                            "clientReference": null,
+                            "photoCaptureOptions": null
+                        },
+                        {
+                            "key": "-LmjvQr5tYxA_dJftZRY",
+                            "score": null,
+                            "created": null,
+                            "modified": null,
+                            "answerOrder": 1,
+                            "displayText": "No",
+                            "questionKey": "-LmjvVzwDrCMSoYmz_7x",
+                            "displayTextKey": null,
+                            "clientReference": null,
+                            "photoCaptureOptions": null
+                        }
+                    ],
+                    "created": 1566319710,
+                    "videoId": null,
+                    "hasOther": false,
+                    "maxScore": 0,
+                    "maxValue": null,
+                    "minValue": null,
+                    "modified": 1569872078,
+                    "numStars": null,
+                    "pointers": {
+                        "previousKey": null,
+                        "nextKey": ""
+                    },
+                    "question": "Is this location an actual post office?",
+                    "parentKey": "-LmjvVzwDrCMSoYmz_7x",
+                    "isOptional": false,
+                    "answerOrder": "sorted",
+                    "allowDecimals": true,
+                    "lowValueLabel": null,
+                    "responseCount": null,
+                    "sentimentText": null,
+                    "highValueLabel": null,
+                    "scoreIntervals": null,
+                    "clientReference": "",
+                    "criticalAnswers": null,
+                    "showUnitsOnLeft": false,
+                    "thresholdAnswers": null,
+                    "maxMultipleAnswers": null,
+                    "minMultipleAnswers": null,
+                    "mustPickSuggestion": null,
+                    "singleLineResponse": null,
+                    "openTextPlaceholder": null,
+                    "openTextSuggestions": null,
+                    "photoCaptureOptions": {
+                        "photoLevelType": "none",
+                        "allowFlashToggle": true,
+                        "mustProvidePhoto": false,
+                        "photoOverlayType": "none",
+                        "defaultFlashState": false
+                    },
+                    "unitOfMeasurementLabel": null,
+                    "lastAnswerPositionPinned": null
+                }
+            ],
+            "rewards": [
+                {
+                    "logo": "",
+                    "state": "",
+                    "owners": {
+                        "client": "..."
+                    },
+                    "created": 1565199354,
+                    "message": {
+                        "body": "Stop by LiveShopper for your FREE high five!",
+                        "header": "High Five"
+                    },
+                    "legalese": "",
+                    "modified": 1565199354,
+                    "parentKey": "-Llh8g_IkORyRb3d7G0I",
+                    "claimCount": 0,
+                    "maxClaimCount": 0,
+                    "usedClaimCount": 0,
+                    "activationDelay": 0,
+                    "clientReference": "",
+                    "campaignRewardKey": "-Llh8g_IkORyRb3d7G0I",
+                    "activationExpiration": 1,
+                    "redemptionExpiration": 30
+                }
+            ],
+            "time": {
+                "max": 5,
+                "min": 3
             }
-          ],
-          "created": 1566319710,
-          "videoId": null,
-          "hasOther": false,
-          "maxScore": 0,
-          "maxValue": null,
-          "minValue": null,
-          "modified": 1569872078,
-          "numStars": null,
-          "pointers": {
-            "previousKey": null,
-            "nextKey": ""
-          },
-          "question": "Is this location an actual post office?",
-          "parentKey": "-LmjvVzwDrCMSoYmz_7x",
-          "isOptional": false,
-          "answerOrder": "sorted",
-          "allowDecimals": true,
-          "lowValueLabel": null,
-          "responseCount": null,
-          "sentimentText": null,
-          "highValueLabel": null,
-          "scoreIntervals": null,
-          "clientReference": "",
-          "criticalAnswers": null,
-          "showUnitsOnLeft": false,
-          "thresholdAnswers": null,
-          "maxMultipleAnswers": null,
-          "minMultipleAnswers": null,
-          "mustPickSuggestion": null,
-          "singleLineResponse": null,
-          "openTextPlaceholder": null,
-          "openTextSuggestions": null,
-          "photoCaptureOptions": {
-            "photoLevelType": "none",
-            "allowFlashToggle": true,
-            "mustProvidePhoto": false,
-            "photoOverlayType": "none",
-            "defaultFlashState": false
-          },
-          "unitOfMeasurementLabel": null,
-          "lastAnswerPositionPinned": null
         }
-      ],
-      "rewards": [
-        {
-          "logo": "",
-          "state": "",
-          "owners": {
-            "client": "..."
-          },
-          "created": 1565199354,
-          "message": {
-            "body": "Stop by LiveShopper for your FREE high five!",
-            "header": "High Five"
-          },
-          "legalese": "",
-          "modified": 1565199354,
-          "parentKey": "-Llh8g_IkORyRb3d7G0I",
-          "claimCount": 0,
-          "maxClaimCount": 0,
-          "usedClaimCount": 0,
-          "activationDelay": 0,
-          "clientReference": "",
-          "campaignRewardKey": "-Llh8g_IkORyRb3d7G0I",
-          "activationExpiration": 1,
-          "redemptionExpiration": 30
-        }
-      ],
-      "time": {
-        "max": 5,
-        "min": 3
-      }
-    }
-  ]
+    ]
 }
 ```
 
 You can search for nearby tasks by calling:
 
 ```kotlin
-LiveShopper.Tasks.get(
-    latitude: Double,
-    longitude: Double,
+LiveShopper.Tasks.search(
+    near: Location
     radius: Double,
-    minimumRadius: Double,
-    { response ->
-      ...
-    }, { throwable ->
+    exclusionRadius: Double?,
+    { status, location, tasks ->
       ...
     }
 )
 ```
 
-You can get the available tasks at a location by calling:
+You can get the available tasks at a known location by calling:
 
 ```kotlin
-LiveShopper.Tasks.get(
+LiveShopper.Tasks.forLocation(
     locationID: String,
-    minimumRadius: Double?,
-    campaignID: String?,
-    { response ->
-      ...
-    }, { throwable ->
+    radius: Double?,
+    exclusionRadius: Double?,
+    { status, location, tasks ->
       ...
     }
 )
 ```
+
+### Claiming and Completing Tasks
 
 You can get details about what the user must do to satisfy the task by calling:
 
@@ -325,16 +390,14 @@ You can claim a task for the current user by calling:
 ```kotlin
 LiveShopper.Tasks.claim(
     task: LSTask,
-    { response ->
-      ...
-    }, { throwable ->
+    { status, claimedTask ->
       ...
     }
 )
 
 ```
 
-You can send a user response related to a task by calling:
+To complete a task, you can send a user response related to a task by calling:
 
 ```kotlin
  LiveShopperAPI.submitAnswer(taskResponse) {
@@ -366,7 +429,7 @@ Finally, there is a helper method to get the next step in a task by calling:
 let question = LiveShopper.Tasks.nextQuestion(task: LSTask, key: String)
 ```
 
-### Places
+## Places
 
 The LiveShopper SDK uses the `LSPlace` model to represent physical locations you have created.
 
@@ -374,88 +437,43 @@ The LiveShopper SDK uses the `LSPlace` model to represent physical locations you
 
 ```json
 {
-  "name": "FINDLAY MAIN OFFICE",
-  "active": true,
-  "latitude": 41.0388157,
-  "longitude": -83.6532543,
-  "address1": "229 W MAIN CROSS ST",
-  "address2": "",
-  "city": "FINDLAY",
-  "state": "OH",
-  "country": "US",
-  "zipCode": "45840",
-  "clientReference": "",
-  "emails": [],
-  "logoKey": "",
-  "phoneNumber": ""
+    "name": "FINDLAY MAIN OFFICE",
+    "active": true,
+    "latitude": 41.0388157,
+    "longitude": -83.6532543,
+    "address1": "229 W MAIN CROSS ST",
+    "address2": "",
+    "city": "FINDLAY",
+    "state": "OH",
+    "country": "US",
+    "zipCode": "45840",
+    "clientReference": "",
+    "emails": [],
+    "logoKey": "",
+    "phoneNumber": ""
 }
 ```
 
 You can search for nearby `LSPlace` by calling:
 
 ```kotlin
-LiveShopper.Places.get(
-    latitude: Double,
-    longitude: Double,
+LiveShopper.Places.search(
     radius: Double,
-    minimumRadius: Double,
-    { response ->
-      ...
-    }, { throwable ->
+    exclusionRadius: Double?,
+    { status, location, places ->
       ...
     }
 )
 ```
 
-alternatively, you can query based on keyword:
+Alternatively, you can search for places near a specified location by calling:
 
 ```kotlin
-LiveShopper.Places.get(searchTerm: String) { result in {
-  ...
-}
-```
-
-### Rewards
-
-The LiveShopper SDK uses the `LSReward` model to represent what the user receives for completing a task.
-
-`LSReward` provides the following information:
-
-```json
-{
-  "logo": "",
-  "state": "",
-  "owners": {
-    "client": "..."
-  },
-  "created": 1565199354,
-  "message": {
-    "body": "Stop by LiveShopper for your FREE high five!",
-    "header": "High Five"
-  },
-  "legalese": "",
-  "modified": 1565199354,
-  "parentKey": "-Llh8g_IkORyRb3d7G0I",
-  "claimCount": 0,
-  "maxClaimCount": 0,
-  "usedClaimCount": 0,
-  "activationDelay": 0,
-  "clientReference": "",
-  "campaignRewardKey": "-Llh8g_IkORyRb3d7G0I",
-  "activationExpiration": 1,
-  "redemptionExpiration": 30
-}
-```
-
-You can claim a `LSReward` by calling:
-
-```kotlin
-LiveShopper.Rewards.claim(
-    task: LSTask,
-    reward: LSReward,
-    { response ->
-      ...
-    }, { throwable ->
+LiveShopper.Places.search(
+    near: Location,
+    radius: Double,
+    exclusionRadius: Double?,
+    { status, location, places ->
       ...
     }
 )
