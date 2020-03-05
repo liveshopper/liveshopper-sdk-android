@@ -400,24 +400,13 @@ LiveShopper.Tasks.claim(
 To complete a task, you can send a user response related to a task by calling:
 
 ```kotlin
- LiveShopperAPI.submitAnswer(taskResponse) {
-      if (it.state == STATE_COMPLETE) {
-          handleRewardClaim()
-      } else {
-          // Still more questions to complete
-          it.nextKey?.let { key -> showNextQuestionByNextKey(key) }
-      }
-  }
-
 LiveShopper.Tasks.saveResponse(
     task: LSTask,
     question: LSQuestion,
     answers: [String]?,
     userAnswer: String?,
     image: UIImage?,
-    { response ->
-      ...
-    }, { throwable ->
+    { status, response ->
       ...
     }
 )
