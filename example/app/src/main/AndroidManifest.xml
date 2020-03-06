@@ -12,6 +12,17 @@
             android:supportsRtl="true"
             android:theme="@style/AppTheme">
 
+        <receiver
+                android:name=".ExampleReceiver"
+                android:enabled="true"
+                android:exported="false">
+
+            <intent-filter>
+                <action android:name="com.liveshopper.sdk.RECEIVED" />
+            </intent-filter>
+
+        </receiver>
+
         <activity
                 android:name=".MainActivity"
                 android:screenOrientation="portrait">
@@ -23,15 +34,5 @@
 
         </activity>
 
-        <receiver
-                android:name=".ExampleReceiver"
-                android:enabled="true"
-                android:exported="false">
-            <intent-filter>
-                <action android:name="com.liveshopper.sdk.RECEIVED" />
-            </intent-filter>
-        </receiver>
-
     </application>
-
 </manifest>
